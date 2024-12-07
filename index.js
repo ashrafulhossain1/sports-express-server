@@ -23,6 +23,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
+
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
         const userCollection = client.db("sportsEquipDB").collection('users')
@@ -66,11 +67,23 @@ async function run() {
 
         // sort by-- all equipCollection
 
+        // app.get('/sortBy', async (req, res) => {
+        //     const cursor = equipCollection.find().sort({ price: 1 })
+        //     const result = await cursor.toArray()
+        //     res.send(result)
+        // })
+
+
         app.get('/sortBy', async (req, res) => {
-            const cursor = equipCollection.find().sort({ price: 1 })
-            const result = await cursor.toArray()
-            res.send(result)
-        })
+            try {
+                const cursor = equipCollection.find().sort({ price: 1 });  
+                const result = await cursor.toArray(); 
+                res.send(result);  
+            } catch (err) {
+                console.error('Error:', err);
+                res.status(500).send('Server Error');
+            }
+        });
 
 
 
@@ -132,14 +145,6 @@ async function run() {
             const result = await equipCollection.deleteOne(query);
             res.send(result)
         })
-
-
-
-
-
-
-
-
 
     } finally {
         // Ensures that the client will close when you finish/error
