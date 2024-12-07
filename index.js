@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -23,6 +23,8 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+
         const userCollection = client.db("sportsEquipDB").collection('users')
         const equipCollection = client.db("sportsEquipDB").collection("equipments")
 
@@ -53,7 +55,59 @@ async function run() {
             res.send(result);
         })
 
-        // Sport Equipments
+        // EQUIPMENT-DB
+
+        // all equipCollection
+        app.get('/allEquipments', async (req, res) => {
+            const cursor = equipCollection.find()
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+
+        // sort by-- all equipCollection
+
+        app.get('/sortBy', async (req, res) => {
+            const cursor = equipCollection.find().sort({ price: 1 })
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+
+
+
+
+
+        app.get('/homeEquip', async (req, res) => {
+            const cursor = equipCollection.find().limit(6)
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+
+        app.get('/myEquip', async (req, res) => {
+            const { email } = req.query;
+            const query = { userEmail: email, }
+
+            const cursor = equipCollection.find(query)
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+
+
+        app.get('/allEquipments/:id', async (req, res) => {
+            const id = req.params.id
+            console.log("hitting from single details", id)
+            const query = { _id: new ObjectId(id) }
+            const result = await equipCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.get('/equipment/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log('UPDATE PAGE,', id)
+            const query = { _id: new ObjectId(id) }
+            const result = await equipCollection.findOne(query)
+            res.send(result)
+        })
+
         app.post('/addEquips', async (req, res) => {
             const equipmentInfo = req.body
             console.log('hitting Equipment', equipmentInfo)
@@ -61,14 +115,35 @@ async function run() {
             res.send(result)
         })
 
-        // app.get('/allEquipment')
+        app.put('/update/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const updatedEquip = {
+                $set: req.body
+            }
+            const result = await equipCollection.updateOne(query, updatedEquip, options);
+            res.send(result)
+        })
+
+        app.delete('/myEquip/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: new ObjectId(id) }
+            const result = await equipCollection.deleteOne(query);
+            res.send(result)
+        })
 
 
 
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+
+
+
+
 
 
     } finally {
+        // Ensures that the client will close when you finish/error
+        // await client.close();
     }
 }
 run().catch(console.dir);
