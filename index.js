@@ -62,16 +62,7 @@ async function run() {
             const result = await cursor.toArray()
             res.send(result)
         })
-
-        // sort by-- all equipCollection
-
-        // app.get('/sortBy', async (req, res) => {
-        //     const cursor = equipCollection.find().sort({ price: 1 })
-        //     const result = await cursor.toArray()
-        //     res.send(result)
-        // })
-
-
+        
         app.get('/sortBy', async (req, res) => {
             try {
                 const cursor = equipCollection.find().sort({ price: 1 });  
