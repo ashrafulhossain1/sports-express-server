@@ -23,7 +23,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
         const userCollection = client.db("sportsEquipDB").collection('users')
@@ -57,7 +56,6 @@ async function run() {
         })
 
         // EQUIPMENT-DB
-
         // all equipCollection
         app.get('/allEquipments', async (req, res) => {
             const cursor = equipCollection.find()
